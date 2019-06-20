@@ -7,7 +7,7 @@ import org.sustech.fem.Shape.LinearShape2D;
  * Created by jimmy on 6/20/19.
  */
 public class LinearElement2D extends BaseElement {
-    double E=1E9;
+    double E=30.0E6;
     double poison=0.3;
     double[][] dd = {{1.,poison,0},{poison,1,0.},{0,0,(1-poison)/2}};
     LinearShape2D linearShape2D;
@@ -23,8 +23,11 @@ public class LinearElement2D extends BaseElement {
     public Matrix K;
     public LinearElement2D(BaseNode[] nodes){
         this.nodes=nodes;
+        int i=0;
         for (BaseNode node:
              nodes) {
+            node.localnumber=i;
+            i++;
             node.elems.add(this);
 
         }

@@ -5,7 +5,7 @@ package org.sustech.fem.Element;
  */
 import org.sustech.fem.Node.BaseNode;
 public class BaseElement {
-    private int number;
+    public int number;
    public BaseNode[] nodes;
     public BaseNode[] getNodes(){
         return nodes;

@@ -6,6 +6,7 @@ package org.sustech.fem.Node;
 import org.sustech.fem.Element.BaseElement;
 public class BaseNode {
   public   int number;
+  public   int localnumber;
   public  double x,y,z;
   public  double[] xx=new double[3];
 public    double[] uvw=new double[3];
