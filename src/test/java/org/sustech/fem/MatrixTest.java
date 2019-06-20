@@ -1,15 +1,17 @@
 package org.sustech.fem;
 
-import org.junit.Test;
+//import org.junit.Test;
 import org.ujmp.core.DenseMatrix;
 import org.ujmp.core.Matrix;
+import org.ujmp.core.SparseMatrix;
 
 /**
  * Created by lionel on 16/11/29.
  */
 public class MatrixTest {
-    @Test
+
     public void test() {
+
         //创建4*4的 零矩阵
         Matrix dense = DenseMatrix.Factory.zeros(4, 4);
         System.out.println(dense);
@@ -85,7 +87,7 @@ public class MatrixTest {
          */
 
         //矩阵 dense 的逆矩阵
-        System.out.println(dense.inv());
+        System.out.println("dense.inv():\n"+dense.inv());
         /*
         1.0000     0.0000     0.0000     0.0000
         0.0000     0.3333     0.0000    -0.3333
@@ -122,8 +124,3 @@ public class MatrixTest {
          */
     }
 }
---------------------- 
-作者：leo_fengj 
-来源：CSDN 
-原文：https://blog.csdn.net/lionel_fengj/article/details/53400715 
-版权声明：本文为博主原创文章，转载请附上博文链接！
