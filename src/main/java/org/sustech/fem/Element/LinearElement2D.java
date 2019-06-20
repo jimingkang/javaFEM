@@ -1,18 +1,26 @@
 package org.sustech.fem.Element;
 
+import Juma.*;
 import org.sustech.fem.Node.BaseNode;
 import org.sustech.fem.Shape.LinearShape2D;
-
 /**
  * Created by jimmy on 6/20/19.
  */
 public class LinearElement2D extends BaseElement {
-
+    double E=1E9;
+    double poison=0.3;
+    double[][] dd = {{1.,poison,0},{poison,1,0.},{0,0,(1-poison)/2}};
+    LinearShape2D linearShape2D;
     private LinearShape2D[] linearShape2Ds;
     private double [] disp=new double[2];
     private double [] strain=new double[3];
-    private double [][] stiffmatrix=new double[3][6];
+    private double [][] stiffmatrix=new double[3][6];//B
+    public Matrix StiffMatrix; //matrix of B
+   // public Matrix Transposestiffmatrix;  //transpose B
 
+
+    public Matrix D = new Matrix(dd);
+    public Matrix K;
     public LinearElement2D(BaseNode[] nodes){
         this.nodes=nodes;
         for (BaseNode node:
@@ -20,8 +28,9 @@ public class LinearElement2D extends BaseElement {
             node.elems.add(this);
 
         }
-        LinearShape2D linearShape2D=new LinearShape2D(this.nodes);
+         linearShape2D=new LinearShape2D(this.nodes);
         linearShape2Ds=linearShape2D.getLinearShape2Ds();
+        setStiffmatrix();
     }
     public LinearShape2D[] getLinearShape2Ds(){
 
@@ -53,23 +62,28 @@ public class LinearElement2D extends BaseElement {
         }
         return this.strain=strain;
     }
-    public double[] getStiffmatrix(double x,double y){
-        double[] strain=new double[3];
+    public void setStiffmatrix(){
+
         int i=0;
         for (BaseNode node: this.nodes             ) {
 
-            stiffmatrix[0][2*i]=linearShape2Ds[i].getBelta(i)/linearShape2Ds[i].getNormal();
+            stiffmatrix[0][2*i]=linearShape2D.getBelta(i)/linearShape2Ds[i].getNormal();
             stiffmatrix[0][2*i+1]=0;
 
             stiffmatrix[1][2*i]=0;
-            stiffmatrix[1][2*i+1]=linearShape2Ds[i].getGamma(i)/linearShape2Ds[i].getNormal();
+            stiffmatrix[1][2*i+1]=linearShape2D.getGamma(i)/linearShape2Ds[i].getNormal();
 
-            stiffmatrix[2][2*i]=linearShape2Ds[i].getGamma(i)/linearShape2Ds[i].getNormal();
-            stiffmatrix[2][2*i+1]=linearShape2Ds[i].getBelta(i)/linearShape2Ds[i].getNormal();
+            stiffmatrix[2][2*i]=linearShape2D.getGamma(i)/linearShape2Ds[i].getNormal();
+            stiffmatrix[2][2*i+1]=linearShape2D.getBelta(i)/linearShape2Ds[i].getNormal();
 
             i++;
         }
-        return this.strain=strain;
+         StiffMatrix=new Matrix(stiffmatrix);
+        //  Transposestiffmatrix=StiffMatrix.transpose();
+
+    }
+    public Matrix getK(){    //trans B * D *B  *A   % A is the area of triangle=this.linearShape2D.getNormal()/2
+       return K= StiffMatrix.transpose().times(D).times(StiffMatrix).times(this.linearShape2D.getNormal()/2);
     }
 
 }

@@ -16,6 +16,13 @@
         <scope>test</scope>
     </dependency>
 -->
+    <!-- https://mvnrepository.com/artifact/jama/jama -->
+    <dependency>
+        <groupId>jama</groupId>
+        <artifactId>jama</artifactId>
+
+    </dependency>
+
     <dependency>
         <groupId>org.ujmp</groupId>
         <artifactId>ujmp-core</artifactId>
