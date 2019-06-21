@@ -1,22 +1,21 @@
 package org.sustech.fem;
-import Juma.*;
 import org.sustech.fem.Element.LinearElement2D;
 import org.sustech.fem.Node.BaseNode;
-import org.ujmp.core.DenseMatrix;
-import org.ujmp.core.DenseMatrix2D;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.SparseMatrix;
 import org.ujmp.core.calculation.Calculation;
 
-public class Main {
-    public static int NodeNum=4;
-    public int EleNum=2;
-     public static BaseNode[] globalNode=new BaseNode[NodeNum];
-  static  Matrix globalK = SparseMatrix.Factory.zeros(2*NodeNum, 2*NodeNum);
+import java.io.*;
 
-    static  Matrix globalF = SparseMatrix.Factory.zeros(2*NodeNum,1);
-    static  Matrix globalBC = SparseMatrix.Factory.zeros(2*NodeNum,1);
-   static LinearElement2D[] elems=new LinearElement2D[2];
+public class Main {
+    public static int NodeNum=0;
+    public static int ElementNum=0;
+     public static BaseNode[] globalNode;//=new BaseNode[NodeNum]
+  static  Matrix globalK ;//= SparseMatrix.Factory.zeros(2*NodeNum, 2*NodeNum);
+
+    static  Matrix globalF ;//= SparseMatrix.Factory.zeros(2*NodeNum,1);
+    static  Matrix globalBC ;//= SparseMatrix.Factory.zeros(2*NodeNum,1);
+   static LinearElement2D[] elems;
     public static void MatrixTest(){
     MatrixTest ma=new MatrixTest();
     ma.test();
@@ -25,25 +24,77 @@ public class Main {
         
         System.out.println("Hello World!");
         //MatrixTest();
+        //initGlobalreadFile();
         triangletest();
     }
+    public static void initGlobalreadFile(){
+        File f=new File("data.txt");
+        BufferedReader bf;
+        String ss;
+        try {
+            bf = new BufferedReader(new FileReader(f));
+            int i=0,j=0;
+            while((ss=bf.readLine())!=null &&ss!=" "){
+
+                if(ss.contains("node")){
+                    NodeNum= Integer.parseInt(ss.split(" ")[1]);
+                    System.out.println("NodeNum:"+NodeNum);
+                    globalNode=new BaseNode[NodeNum];
+                   globalK = SparseMatrix.Factory.zeros(2*NodeNum, 2*NodeNum);
+
+                    globalF = SparseMatrix.Factory.zeros(2*NodeNum,1);
+                    globalBC = SparseMatrix.Factory.zeros(2*NodeNum,1);
+                }else if(i<NodeNum){
+                    String [] nodestr= ss.split("\t");
+                    globalNode[Integer.parseInt(nodestr[0])-1]=new BaseNode(Double.parseDouble(nodestr[1]),Double.parseDouble(nodestr[2]),1);
+                    i++;
+                }
+
+                if(ss.contains("element")){
+                    ElementNum= Integer.parseInt(ss.split(" ")[1]);
+                    System.out.println(ElementNum);
+                    elems=new LinearElement2D[ElementNum];
+                }else if(j<ElementNum){
+                    if(j==142)
+                    System.out.println(j);
+                    String [] elemstr= ss.split("\t");
+                    BaseNode[] nodes=new BaseNode[3];
+                    nodes[0]=globalNode[Integer.parseInt(elemstr[1])-1];
+                    nodes[0].number=Integer.parseInt(elemstr[1])-1;
+                    nodes[1]=globalNode[Integer.parseInt(elemstr[2])-1];
+                    nodes[1].number=Integer.parseInt(elemstr[2])-1;
+                    nodes[2]=globalNode[Integer.parseInt(elemstr[3])-1];
+                    nodes[2].number=Integer.parseInt(elemstr[3])-1;
+                    elems[Integer.parseInt(elemstr[0])-1]=new LinearElement2D(nodes);
+
+                    j++;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assemble();
+    }
     public static void triangletest(){
-        initGlobal();
+       // initGlobal();
+        initGlobalreadFile();
         initGlobalBC();
-        System.out.println(globalK.det());
+       System.out.println("det:"+globalK.det());
         setBC();
         System.out.println(globalK);
         double[][] globalarray=globalK.toDoubleArray();
         Juma.Matrix jmatr= new Juma.Matrix(globalarray);
-        Juma.Matrix subm=jmatr.getMatrix(4,7,4,7);
+        Juma.Matrix subm=jmatr.getMatrix(NodeNum/2,2*NodeNum-1,NodeNum/2,2*NodeNum-1);
         System.out.println(subm);
-        double[][] f=new double[][]{{5000},{0},{5000},{0}};
+        //double[][] f=new double[][]{{5000},{0},{5000},{0}};
+        Juma.Matrix f= Juma.Matrix.random(2*NodeNum-NodeNum/2,1);
         //subm;
-        Juma.Matrix rs=subm.solve(new Juma.Matrix(f));
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 1; j++)
-                System.out.println(rs.getArray()[i][j]);
+        Juma.Matrix rs=subm.solve(f);
+        for (int i = 0; i < NodeNum; i++) {
+            for (int j = 0; j < NodeNum; j++)
+                System.out.print(rs.getArray()[i][j]+"\t");
         }
+        System.out.println();
 
      /// Matrix rs=  globalK.inv().times(globalF.subMatrix(Calculation.Ret.LINK,4,7));
       //  System.out.println(rs);
@@ -74,7 +125,39 @@ public class Main {
         globalF.setAsFloat(5000,6,0);
         globalF.setAsFloat(0,7,0);
     }
+public static void assemble(){
+    for (LinearElement2D ele:
+            elems ) {
+        //   System.out.println(ele.getK().det());
+        //ele.getK().print(1,1);
+        BaseNode [] enodes=ele.getNodes();
 
+        //int i=0;
+        for(int i=0;i<3;i++) {
+            for(int j=0;j<3;j++) {
+
+
+                globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number, 2 * enodes[j].number)
+                                + ele.getK().get(2 * enodes[i].localnumber, 2 * enodes[j].localnumber),
+                        2 * enodes[i].number, 2 * enodes[j].number);
+
+                globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number, 2 * enodes[j].number+1)
+                                + ele.getK().get(2 * enodes[i].localnumber, 2 * enodes[j].localnumber+1),
+                        2 * enodes[i].number, 2 * enodes[j].number+1);
+
+                globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number+1, 2 * enodes[j].number)
+                                + ele.getK().get(2 * enodes[i].localnumber+1, 2 * enodes[j].localnumber),
+                        2 * enodes[i].number+1, 2 * enodes[j].number);
+
+                globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number + 1, 2 * enodes[j].number + 1)
+                                + ele.getK().get(2 * enodes[i].localnumber + 1, 2 * enodes[j].localnumber + 1),
+                        2 * enodes[i].number + 1, 2 * enodes[j].number + 1);
+
+            }
+        }
+//System.out.print(globalK);
+    }
+}
     public static void initGlobal(){
         BaseNode[] nodes=new BaseNode[3];
 
@@ -111,36 +194,6 @@ public class Main {
         elems[0]=new LinearElement2D(nodes);
         elems[1]=new LinearElement2D(nodes2);
 
-        for (LinearElement2D ele:
-                elems ) {
-             //   System.out.println(ele.getK().det());
-             //ele.getK().print(1,1);
-            BaseNode [] enodes=ele.getNodes();
-
-            //int i=0;
-            for(int i=0;i<3;i++) {
-                for(int j=0;j<3;j++) {
-
-
-                    globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number, 2 * enodes[j].number)
-                                    + ele.getK().get(2 * enodes[i].localnumber, 2 * enodes[j].localnumber),
-                            2 * enodes[i].number, 2 * enodes[j].number);
-
-                    globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number, 2 * enodes[j].number+1)
-                                    + ele.getK().get(2 * enodes[i].localnumber, 2 * enodes[j].localnumber+1),
-                            2 * enodes[i].number, 2 * enodes[j].number+1);
-
-                    globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number+1, 2 * enodes[j].number)
-                                    + ele.getK().get(2 * enodes[i].localnumber+1, 2 * enodes[j].localnumber),
-                            2 * enodes[i].number+1, 2 * enodes[j].number);
-
-                    globalK.setAsDouble(globalK.getAsDouble(2 * enodes[i].number + 1, 2 * enodes[j].number + 1)
-                                    + ele.getK().get(2 * enodes[i].localnumber + 1, 2 * enodes[j].localnumber + 1),
-                            2 * enodes[i].number + 1, 2 * enodes[j].number + 1);
-
-                }
-            }
-System.out.print(globalK);
-        }
+assemble();
     }
 }

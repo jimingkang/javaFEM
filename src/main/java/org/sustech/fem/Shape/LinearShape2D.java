@@ -37,6 +37,17 @@ private double alpha,belta,gamma;
     }
     public double getNormal(){
         double tmp=this.nodes[0].x*this.getBelta(0)+this.nodes[1].x*this.getBelta(1)+this.nodes[2].x*this.getBelta(2);
+        if(tmp<0)
+        {
+           BaseNode local=  nodes[1];
+            nodes[1]=nodes[2];
+            nodes[2]=local;
+          /*int local=  nodes[1].localnumber;
+            nodes[1].localnumber=nodes[2].localnumber;
+            nodes[2].localnumber=local;*/
+            tmp=this.nodes[0].x*this.getBelta(0)+this.nodes[1].x*this.getBelta(1)+this.nodes[2].x*this.getBelta(2);
+          //  System.out.println("nomal:"+tmp);
+        }
         return this.normal=tmp;
     }
     public double getValue(double x, double y){
