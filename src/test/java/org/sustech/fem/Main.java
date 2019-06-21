@@ -91,8 +91,8 @@ public class Main {
         //subm;
         Juma.Matrix rs=subm.solve(f);
         for (int i = 0; i < NodeNum; i++) {
-            for (int j = 0; j < NodeNum; j++)
-                System.out.print(rs.getArray()[i][j]+"\t");
+            for (int j = 0; j < 1; j++)
+                System.out.print(rs.getArray()[i][j]+"\n");
         }
         System.out.println();
 
