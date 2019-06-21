@@ -7,9 +7,9 @@ import org.sustech.fem.Shape.LinearShape2D;
  * Created by jimmy on 6/20/19.
  */
 public class LinearElement2D extends BaseElement {
-    double E=30.0E6;
+    double E=30.0*1000000;
     double poison=0.3;
-    double[][] dd = {{1.,poison,0},{poison,1,0.},{0,0,(1-poison)/2}};
+    double[][] dd = {{1.,poison,0},{poison,1,0.},{0,0,(1-poison)/2.0}};
     LinearShape2D linearShape2D;
     private LinearShape2D[] linearShape2Ds;
     private double [] disp=new double[2];
@@ -19,7 +19,7 @@ public class LinearElement2D extends BaseElement {
    // public Matrix Transposestiffmatrix;  //transpose B
 
 
-    public Matrix D = new Matrix(dd);
+    public Matrix D = new Matrix(dd).times(E/(1-poison*poison));
     public Matrix K;
     public LinearElement2D(BaseNode[] nodes){
         this.nodes=nodes;
@@ -85,8 +85,13 @@ public class LinearElement2D extends BaseElement {
         //  Transposestiffmatrix=StiffMatrix.transpose();
 
     }
-    public Matrix getK(){    //trans B * D *B  *A   % A is the area of triangle=this.linearShape2D.getNormal()/2
-       return K= StiffMatrix.transpose().times(D).times(StiffMatrix).times(this.linearShape2D.getNormal()/2);
+    public Matrix getK(){
+        //trans B * D *B  *A   % A is the area of triangle=this.linearShape2D.getNormal()/2
+
+      //  D.print(1,1);
+        //System.out.println();
+      //  StiffMatrix.print(1,1);
+        return K= StiffMatrix.transpose().times(D).times(StiffMatrix).times(this.linearShape2D.getNormal()/2);
     }
 
 }
