@@ -3,9 +3,12 @@ import org.sustech.fem.Element.LinearElement2D;
 import org.sustech.fem.Node.BaseNode;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.SparseMatrix;
+import org.ujmp.core.SparseMatrix2D;
 import org.ujmp.core.calculation.Calculation;
+import org.ujmp.core.util.DefaultSparseDoubleVector1D;
 
 import java.io.*;
+import java.math.BigInteger;
 
 public class Main {
     public static int NodeNum=0;
@@ -81,18 +84,28 @@ public class Main {
         initGlobalBC();
        System.out.println("det:"+globalK.det());
         setBC();
-        System.out.println(globalK);
+     //   System.out.println(globalK);
         double[][] globalarray=globalK.toDoubleArray();
         Juma.Matrix jmatr= new Juma.Matrix(globalarray);
-        Juma.Matrix subm=jmatr.getMatrix(NodeNum/2,2*NodeNum-1,NodeNum/2,2*NodeNum-1);
-        System.out.println(subm);
+       // Juma.Matrix subm=jmatr.getMatrix(NodeNum/2,2*NodeNum-1,NodeNum/2,2*NodeNum-1);
+      //  System.out.println(subm);
         //double[][] f=new double[][]{{5000},{0},{5000},{0}};
-        Juma.Matrix f= Juma.Matrix.random(2*NodeNum-NodeNum/2,1);
+        //Juma.Matrix f= Juma.Matrix.random(2*NodeNum-NodeNum/2,1);
         //subm;
-        Juma.Matrix rs=subm.solve(f);
+      //  Juma.Matrix rs=subm.solve(f);
+
+
+        Juma.Matrix subm=jmatr.getMatrix(0,2*NodeNum-1,0,2*NodeNum-1);
+        Juma.Matrix f= Juma.Matrix.random(2*NodeNum,1);
+        double [][] ff =f.getArray();
+        Matrix fff=SparseMatrix.Factory.ones(2*NodeNum,1);
+        //subm;
+     // Juma.Matrix rs=subm.solve(f);
+        Matrix rs=globalK.solve(fff);
+
         for (int i = 0; i < NodeNum; i++) {
             for (int j = 0; j < 1; j++)
-                System.out.print(rs.getArray()[i][j]+"\n");
+                System.out.print(i+":"+rs.toDoubleArray()[i][j]+"\n");
         }
         System.out.println();
 
@@ -108,13 +121,15 @@ public class Main {
         globalBC.setAsInt(1,2,0);
         globalBC.setAsInt(2,3,0);
     }
+    public static double bigNum= 1e15;
     public static void setBC(){
         for (int i = 0; i < 2*NodeNum; i++) {
           if(  globalBC.getAsInt(i,0)>0){
-
-              globalK.deleteRows(Calculation.Ret.NEW,i);
-              globalK.deleteColumns(Calculation.Ret.NEW,i);
-              globalF.deleteRows(Calculation.Ret.NEW,i);
+              globalK.setAsDouble(bigNum,2*i,2*i);
+              globalK.setAsDouble(bigNum,2*i+1,2*i+1);
+             // globalK.deleteRows(Calculation.Ret.NEW,i);
+            //  globalK.deleteColumns(Calculation.Ret.NEW,i);
+            //  globalF.deleteRows(Calculation.Ret.NEW,i);
 
           }
         }
