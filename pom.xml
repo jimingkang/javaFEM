@@ -22,38 +22,33 @@
         <!--<marlin.test.home>${session.executionRootDirectory}</marlin.test.home>-->
     </properties>
 <dependencies>
-    <!-- https://mvnrepository.com/artifact/org.jblas/jblas -->
+
     <dependency>
         <groupId>org.jblas</groupId>
         <artifactId>jblas</artifactId>
+        <version>1.2.4</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/junit/junit
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit4</artifactId>
 
-        <scope>test</scope>
-    </dependency>
--->
-    <!-- https://mvnrepository.com/artifact/jama/jama -->
+
+
     <dependency>
-        <groupId>jama</groupId>
+        <groupId>gov.nist.math</groupId>
         <artifactId>jama</artifactId>
+        <version>1.0.0</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.ujmp/ujmp-core -->
     <dependency>
         <groupId>org.ujmp</groupId>
         <artifactId>ujmp-core</artifactId>
         <version>0.3.0</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>RELEASE</version>
+        <version>4.12</version>
         <scope>test</scope>
     </dependency>
-
-
-
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-compiler</artifactId>

@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="fem" target="1.5" />
+      <module name="javaFEM" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
